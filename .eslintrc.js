@@ -30,7 +30,7 @@ module.exports = {
   },
   rules: {
     'react/prop-types': 'off', //not required prop-types cause use typescript
-    'no-console': 'warn', // to prevent forgetting to erase console.log()
+    'no-console': 'off', // to prevent forgetting to erase console.log()
     'no-unused-vars': 'off', // unused variables
     camelcase: 'warn', // camelcase
     'no-undef': 'off', // undefined variables
