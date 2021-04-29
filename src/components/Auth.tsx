@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { ReactEventHandler, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { login } from '../features/userSlice';
 import styles from './Auth.module.css';
 import {
   Avatar,
@@ -14,6 +15,7 @@ import {
   Grid,
   Typography,
   makeStyles,
+  IconButton,
 } from '@material-ui/core';
 import SendIcon from '@material-ui/icons/Send';
 import CameraIcon from '@material-ui/icons/Camera';
@@ -54,19 +56,47 @@ const useStyles = makeStyles((theme) => ({
 
 export const Auth: React.FC = () => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [profileImg, setProfileImg] = useState<File | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  const onChangeImgHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files === null) {
+      return;
+    }
+    if (e.target.files[0]) {
+      setProfileImg(e.target.files[0]);
+      e.target.value = '';
+    }
+  };
 
   const signIn = async () => {
     // TODO ここでサーバーにアドレスとパスワードを送信する
-    // データをストアに保存する
+    // user data, tokenをストアに保存する
+    dispatch(
+      login({
+        id: 1,
+        name,
+        profileImgUrl:
+          'https://images.unsplash.com/photo-1524638431109-93d95c968f03?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1234&q=80',
+      }),
+    );
   };
 
   const signUp = async () => {
     // TODO ここでサーバーにname,アドレスとパスワードを送信する
-    // データをストアに保存する
+    // user data, をストアに保存する
+    dispatch(
+      login({
+        id: 1,
+        name,
+        profileImgUrl:
+          'https://images.unsplash.com/photo-1524638431109-93d95c968f03?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1234&q=80',
+      }),
+    );
   };
 
   return (
@@ -83,21 +113,34 @@ export const Auth: React.FC = () => {
           </Typography>
           <form className={classes.form} noValidate>
             {!isLoggedIn && (
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                id="name"
-                label="Name"
-                name="name"
-                autoComplete="name"
-                autoFocus
-                value={name}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-                  setName(e.target.value);
-                }}
-              />
+              <>
+                <Box textAlign="center">
+                  <IconButton>
+                    <label>
+                      <AccountCircleIcon
+                        fontSize="large"
+                        className={profileImg ? styles.login_addIconLoaded : styles.login_addIcon}
+                      />
+                      <input className={styles.login_hiddenIcon} type="file" onChange={onChangeImgHandler} />
+                    </label>
+                  </IconButton>
+                </Box>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="name"
+                  label="Name"
+                  name="name"
+                  autoComplete="name"
+                  autoFocus
+                  value={name}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+                    setName(e.target.value);
+                  }}
+                />
+              </>
             )}
             <TextField
               variant="outlined"
@@ -130,12 +173,13 @@ export const Auth: React.FC = () => {
               }}
             />
             <Button
-              type="submit"
+              disabled={
+                isLoggedIn ? !email || password.length < 6 : !name || !email || password.length < 6 || !profileImg
+              }
               fullWidth
               variant="contained"
               color="primary"
               className={classes.submit}
-              startIcon={isLoggedIn || <EmailIcon />}
               onClick={
                 isLoggedIn
                   ? async () => {

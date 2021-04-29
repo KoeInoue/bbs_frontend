@@ -4,13 +4,13 @@ import { useSelector, useDispatch } from 'react-redux';
 
 export const Feeds: React.FC = () => {
   const dispatch = useDispatch();
-  const logout = () => {
+  const logingout = () => {
     dispatch(logout());
   };
   return (
     <div>
       Feed
-      <button onClick={() => logout()}></button>
+      <button onClick={() => logingout()}>Logout</button>
     </div>
   );
 };
